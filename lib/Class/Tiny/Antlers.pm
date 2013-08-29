@@ -46,6 +46,8 @@ sub has
 	my $required  = delete($spec{required});
 	my $default   = delete($spec{default});
 	my $lazy      = delete($spec{lazy});
+	my $clearer   = delete($spec{clearer});
+	my $predicate = delete($spec{predicate});
 	
 	if ($is eq 'lazy')
 	{
@@ -105,7 +107,19 @@ sub has
 	{
 		croak("Class::Tiny::Antlers does not support '$is' accessors");
 	}
-
+	
+	if ($clearer)
+	{
+		$clearer = ($attr =~ /^_/) ? "_clear$attr" : "clear_$attr" if $clearer eq '1';
+		push @methods, "sub $clearer :method { delete(\$_[0]{'$attr'}) }";
+	}
+	
+	if ($predicate)
+	{
+		$predicate = ($attr =~ /^_/) ? "_has$attr" : "has_$attr" if $predicate eq '1';
+		push @methods, "sub $predicate :method { exists(\$_[0]{'$attr'}) }";
+	}
+	
 	eval "package $caller; @methods use Class::Tiny qw($attr);";
 }
 
@@ -168,10 +182,10 @@ keywords for L<Class::Tiny>. (The C<with> keyword requires L<Role::Tiny>.)
 
 Class::Tiny doesn't support all Moose's attribute options; C<has> should
 throw you an error if you try to do something it doesn't support (like
-builders, triggers or type constraints).
+triggers or type constraints).
 
 Class::Tiny::Antlers does however hack in support for C<< is => 'ro' >>
-and Moo-style C<< is => 'rwp' >>.
+and Moo-style C<< is => 'rwp' >>, clearers and predicates.
 
 Class::Tiny::Antlers is currently distributed as part of L<Moops>, but
 is fairly independent of the rest of it, and may be spun off as a
