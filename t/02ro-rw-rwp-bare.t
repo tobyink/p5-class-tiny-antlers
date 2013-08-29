@@ -46,31 +46,52 @@ use Test::More;
 
 my $obj = new_ok 'XXX' => [ aaa => 11, bbb => 12, ccc => 13, ddd => 14, eee => 15 ];
 
-is($obj->aaa, 11, 'ro: reader');
+subtest "ro attribute" => sub {
+	is($obj->aaa, 11, 'reader works');
+	
+	$obj->aaa(21);
+	is($obj->aaa, 11, '... and cannot be used as writer');
+	
+	done_testing;
+};
 
-$obj->aaa(21);
-is($obj->aaa, 11, '... and cannot be used as writer');
+subtest "rw attribute" => sub {
+	is($obj->bbb, 12, 'accessor can be used for reading');
+	
+	$obj->bbb(22);
+	is($obj->bbb, 22, '... and writing');
+	
+	done_testing;
+};
 
-is($obj->bbb, 12, 'rw: accessor (reading)');
+subtest "rwp attribute" => sub {
+	is($obj->ccc, 13, 'reader works');
+	
+	$obj->ccc(23);
+	is($obj->ccc, 13, '... and cannot be used as writer');
+	
+	$obj->_set_ccc(23);
+	is($obj->ccc, 23, 'private writer works');
+	
+	done_testing;
+};
 
-$obj->bbb(22);
-is($obj->bbb, 22, 'rw: accessor (writing)');
+subtest "bare attribute" => sub {
+	is($obj->{ddd}, 14, 'bare attributes accepted by constructor');
+	
+	is($obj->ddd, 'inherited sub', 'but no methods are generated');
+	
+	done_testing;
+};
 
-is($obj->ccc, 13, 'rwp: reader');
-
-$obj->ccc(23);
-is($obj->ccc, 13, '... and cannot be used as writer');
-
-$obj->_set_ccc(23);
-is($obj->ccc, 23, 'rwp: writer');
-
-is($obj->{ddd}, 14, 'bare: internals');
-is($obj->ddd, 'inherited sub', 'bare: no accessor generated');
-
-is($obj->eee, 15, 'no is option: accessor (reading)');
-
-$obj->eee(25);
-is($obj->eee, 25, 'no is option: accessor (writing)');
+subtest "attribute with no `is` option at all" => sub {
+	is($obj->eee, 15, 'accessor can be used for reading');
+	
+	$obj->eee(25);
+	is($obj->eee, 25, '... and writing');
+	
+	done_testing;
+};
 
 done_testing;
 
