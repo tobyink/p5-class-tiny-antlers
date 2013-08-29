@@ -201,7 +201,8 @@ Class::Tiny::Antlers - Moose-like sugar for Class::Tiny
 =head1 DESCRIPTION
 
 Class::Tiny::Antlers provides L<Moose>-like C<has>, C<extends> and C<with>
-keywords for L<Class::Tiny>. (The C<with> keyword requires L<Role::Tiny>.)
+keywords for L<Class::Tiny>. (The C<with> keyword is implemented by
+L<Role::Tiny>.)
 
 Class::Tiny doesn't support all Moose's attribute options; C<has> should
 throw you an error if you try to do something it doesn't support (like
@@ -217,7 +218,9 @@ L<http://rt.cpan.org/Dist/Display.html?Queue=Class-Tiny-Antlers>.
 
 =head1 SEE ALSO
 
-L<Class::Tiny>, L<Moose>, L<Moo>.
+L<Class::Tiny>, L<Role::Tiny>.
+
+L<Moose>, L<Mouse>, L<Moo>.
 
 =head1 AUTHOR
 
