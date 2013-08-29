@@ -187,20 +187,14 @@ triggers or type constraints).
 Class::Tiny::Antlers does however hack in support for C<< is => 'ro' >>
 and Moo-style C<< is => 'rwp' >>, clearers and predicates.
 
-Class::Tiny::Antlers is currently distributed as part of L<Moops>, but
-is fairly independent of the rest of it, and may be spun off as a
-separate release in the future.
-
 =head1 BUGS
 
 Please report any bugs to
-L<http://rt.cpan.org/Dist/Display.html?Queue=Moops>.
+L<http://rt.cpan.org/Dist/Display.html?Queue=Class-Tiny-Antlers>.
 
 =head1 SEE ALSO
 
 L<Class::Tiny>, L<Moose>, L<Moo>.
-
-L<Moops>.
 
 =head1 AUTHOR
 
