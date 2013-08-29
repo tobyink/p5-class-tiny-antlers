@@ -1,0 +1,19 @@
+# This file contains general metadata about the project.
+
+@prefix : <http://usefulinc.com/ns/doap#>.
+
+`Class-Tiny-Antlers`
+	:programming-language "Perl" ;
+	:shortdesc            "Moose-like sugar for Class::Tiny";
+	:homepage             <https://metacpan.org/release/Class-Tiny-Antlers>;
+	:download-page        <https://metacpan.org/release/Class-Tiny-Antlers>;
+	:bug-database         <http://rt.cpan.org/Dist/Display.html?Queue=Class-Tiny-Antlers>;
+#	:repository           [ a :GitRepository; :browse <https://github.com/tobyink/p5-class-tiny-antlers> ];
+	:created              2013-08-29;
+	:license              <http://dev.perl.org/licenses/>;
+	:maintainer           cpan:TOBYINK;
+	:developer            cpan:TOBYINK.
+
+<http://dev.perl.org/licenses/>
+	dc:title  "the same terms as the perl 5 programming language system itself".
+
