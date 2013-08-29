@@ -116,6 +116,7 @@ sub has
 	}
 	
 	my @methods;
+	my $needs_clean = 0;
 	if ($is eq 'rw')
 	{
 		push @methods, "sub $attr :method { \$_[0]{'$attr'} = \$_[1] if \@_ > 1; $getter };";
@@ -126,7 +127,12 @@ sub has
 		push @methods, "sub _set_$attr :method { \$_[0]{'$attr'} = \$_[1] };"
 			if $is eq 'rwp';
 	}
-	elsif ($is ne 'bare')
+	elsif ($is eq 'bare')
+	{
+		no strict 'refs';
+		$needs_clean = not exists &{"$caller\::$attr"};
+	}
+	else 
 	{
 		croak("Class::Tiny::Antlers does not support '$is' accessors");
 	}
@@ -144,6 +150,21 @@ sub has
 	}
 	
 	eval "package $caller; @methods use Class::Tiny qw($attr);";
+	
+	if ($needs_clean)
+	{
+		require Package::Stash;
+		my $ps = 'Package::Stash'->new($caller);
+
+		my @restore = map {
+			my $name = $_ . $attr;
+			my $def = $ps->get_symbol($name);
+			defined($def) ? [$name, $def] : ();
+		} '$', '@', '%', '';
+
+		$ps->remove_glob($attr);
+		$ps->add_symbol(@$_) for @restore;
+	}
 }
 
 sub extends
