@@ -6,7 +6,7 @@ package Class::Tiny::Antlers;
 our $AUTHORITY = 'cpan:TOBYINK';
 our $VERSION   = '0.019';
 
-use Class::Tiny 0.004 ();
+use Class::Tiny 0.005 ();
 
 sub import
 {
@@ -41,24 +41,34 @@ sub has
 		croak("Invalid accessor name '%s'", $attr);
 	}
 	
-	my $init_arg = exists($spec{init_arg}) ? delete($spec{init_arg}) : \undef;
-	my $is       = delete($spec{is}) || 'rw';
-	my $isa      = delete($spec{isa});
-	my $required = delete($spec{required});
+	my $init_arg  = exists($spec{init_arg}) ? delete($spec{init_arg}) : \undef;
+	my $is        = delete($spec{is}) || 'rw';
+	my $required  = delete($spec{required});
+	my $default   = delete($spec{default});
+	my $lazy      = delete($spec{lazy});
 	
-	if (keys %spec)
+	if ($is eq 'lazy')
+	{
+		$lazy = 1;
+		$is   = 'ro';
+	}
+	
+	if (defined $lazy and not $lazy)
+	{
+		croak("Class::Tiny does not support eager defaults");
+	}
+	elsif ($spec{isa} or $spec{coerce})
+	{
+		croak("Class::Tiny does not support type constraints");
+	}
+	elsif (keys %spec)
 	{
 		croak("Unknown options in attribute specification (%s)", join ", ", sort keys %spec);
 	}
 	
-	if ($required and 'Class::Tiny'->can('new') == $caller->can('new'))
+	if ($required and 'Class::Tiny::Object'->can('new') == $caller->can('new'))
 	{
-		croak("Class::Tiny::new does not support required attributes; please manually override the constructor to enforce required attributes");
-	}
-	
-	if ($isa)
-	{
-		croak("Class::Tiny does not support type constraints");
+		croak("Class::Tiny::Object::new does not support required attributes; please manually override the constructor to enforce required attributes");
 	}
 	
 	if ($init_arg and ref($init_arg) eq 'SCALAR' and not defined $$init_arg)
@@ -70,22 +80,33 @@ sub has
 		croak("Class::Tiny does not support init_arg");
 	}
 	
-	if ($is eq 'ro')
+	my $getter = "\$_[0]{'$attr'}";
+	if (defined $default and ref($default) eq 'CODE')
 	{
-		eval "package $caller; sub $attr :method { \$_[0]{'$attr'} }; use Class::Tiny qw($attr);";
+		$getter = "\$_[0]{'$attr'} = \$default->(\$_[0]) unless exists \$_[0]{'$attr'}; $getter";
 	}
-	elsif ($is eq 'rwp')
+	elsif (defined $default)
 	{
-		eval "package $caller; sub $attr :method { \$_[0]{'$attr'} }; sub _set_$attr :method { \$_[0]{'$attr'} = \$_[1] }; use Class::Tiny qw($attr);";
+		$getter = "\$_[0]{'$attr'} = \$default unless exists \$_[0]{'$attr'}; $getter";
 	}
-	elsif ($is eq 'rw')
+	
+	my @methods;
+	if ($is eq 'rw')
 	{
-		eval "package $caller; use Class::Tiny qw($attr);";
+		push @methods, "sub $attr :method { \$_[0]{'$attr'} = \$_[1] if \@_ > 1; $getter };";
 	}
-	else
+	elsif ($is eq 'ro' or $is eq 'rwp')
 	{
-		croak("Class::Tiny::Antlers does not support $is accessors");
+		push @methods, "sub $attr :method { $getter };";
+		push @methods, "sub _set_$attr :method { \$_[0]{'$attr'} = \$_[1] };"
+			if $is eq 'rwp';
 	}
+	elsif ($is ne 'bare')
+	{
+		croak("Class::Tiny::Antlers does not support '$is' accessors");
+	}
+
+	eval "package $caller; @methods use Class::Tiny qw($attr);";
 }
 
 sub extends
