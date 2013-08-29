@@ -8,14 +8,30 @@ our $VERSION   = '0.019';
 
 use Class::Tiny 0.005 ();
 
+my %EXPORT_TAGS = (
+	default => [qw/ has extends with strict /],
+	all     => [qw/ has extends with strict warnings confess /],
+);
+
 sub import
 {
 	shift;
-	my $caller = caller;
+	my %want =
+		map +($_ => 1),
+		map +(@{ $EXPORT_TAGS{substr($_, 1)} or [$_] }),
+		(@_ ? @_ : '-default');
+	
+	strict->import    if delete $want{strict};
+	warnings->import  if delete $want{warnings};
+	
 	no strict 'refs';
-	*{"$caller\::has"}     = sub { unshift @_, $caller; goto \&has };
-	*{"$caller\::extends"} = sub { unshift @_, $caller; goto \&extends };
-	*{"$caller\::with"}    = sub { unshift @_, $caller; goto \&with };
+	my $caller = caller;
+	*{"$caller\::has"}     = sub { unshift @_, $caller; goto \&has }     if delete $want{has};
+	*{"$caller\::extends"} = sub { unshift @_, $caller; goto \&extends } if delete $want{extends};
+	*{"$caller\::with"}    = sub { unshift @_, $caller; goto \&with }    if delete $want{with};
+	*{"$caller\::confess"} = \&confess if delete $want{confess};
+	
+	croak("Unknown import symbols (%s)", join ", ", sort keys %want) if keys %want;
 }
 
 sub croak
@@ -23,6 +39,13 @@ sub croak
 	require Carp;
 	my ($fmt, @values) = @_;
 	Carp::croak(sprintf($fmt, @values));
+}
+
+sub confess
+{
+	require Carp;
+	my ($fmt, @values) = @_;
+	Carp::confess(sprintf($fmt, @values));
 }
 
 sub has
