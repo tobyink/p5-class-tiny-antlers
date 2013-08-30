@@ -175,7 +175,7 @@ sub has
 		no strict 'refs';
 		$needs_clean = not exists &{"$caller\::$attr"};
 	}
-	else 
+	else
 	{
 		croak("Class::Tiny::Antlers does not support '$is' accessors");
 	}
@@ -226,6 +226,8 @@ __END__
 =pod
 
 =encoding utf-8
+
+=for stopwords unimport
 
 =head1 NAME
 
