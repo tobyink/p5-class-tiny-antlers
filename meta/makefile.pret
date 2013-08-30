@@ -5,7 +5,6 @@
 `Class-Tiny-Antlers`
 	:runtime-requirement    [ :on "Class::Tiny 0.005"^^:CpanId ];
 	:runtime-requirement    [ :on "Role::Tiny 1.000000"^^:CpanId ];
-	:runtime-requirement    [ :on "Package::Stash 0"^^:CpanId ];
 	:test-requirement       [ :on "Test::More 0.96"^^:CpanId ];
 	:test-requirement       [ :on "Test::Fatal 0.003"^^:CpanId ];
 	:develop-recommendation [ :on "Dist::Inkt 0.001"^^:CpanId ];

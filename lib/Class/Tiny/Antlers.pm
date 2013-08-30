@@ -1,7 +1,9 @@
+package Class::Tiny::Antlers;
+
+sub _getstash { \%{"$_[0]::"} }
+
 use strict;
 use warnings;
-
-package Class::Tiny::Antlers;
 
 our $AUTHORITY = 'cpan:TOBYINK';
 our $VERSION   = '0.019';
@@ -46,35 +48,33 @@ sub unimport
 {
 	shift;
 	my $caller = caller;
-	my @remove =
-		grep exists($INSTALLED{$caller}{$_}),
-		map +($_ => 1),
-		map +(@{ $EXPORT_TAGS{substr($_, 1)} or [$_] }),
-		(@_ ? @_ : keys(%{$INSTALLED{$caller}}));
-	
-	for my $remove (@remove)
-	{
-		no strict 'refs';
-		_clean($caller, $remove)
-			if \&{"$caller\::$remove"} eq $INSTALLED{$caller}{$remove};
-	}
+	_clean($caller, $INSTALLED{$caller});
 }
 
 sub _clean
 {
-	my ($pkg, $sub) = @_;
+	my ($target, $exports) = @_;
+	my %rev = reverse %$exports or return;
+	my $stash = _getstash($target);
 	
-	require Package::Stash;
-	my $ps = 'Package::Stash'->new($pkg);
-
-	my @restore = map {
-		my $name = $_ . $sub;
-		my $def = $ps->get_symbol($name);
-		defined($def) ? [$name, $def] : ();
-	} '$', '@', '%', '';
-
-	$ps->remove_glob($sub);
-	$ps->add_symbol(@$_) for @restore;
+	for my $name (keys %$exports)
+	{
+		if ($stash->{$name} and defined(&{$stash->{$name}}))
+		{
+			if ($rev{$target->can($name)})
+			{
+				my $old = delete $stash->{$name};
+				my $full_name = join('::',$target,$name);
+				# Copy everything except the code slot back into place (e.g. $has)
+				foreach my $type (qw(SCALAR HASH ARRAY IO))
+				{
+					next unless defined(*{$old}{$type});
+					no strict 'refs';
+					*$full_name = *{$old}{$type};
+				}
+			}
+		}
+	}
 }
 
 sub croak
@@ -193,8 +193,8 @@ sub has
 	}
 	
 	eval "package $caller; @methods use Class::Tiny qw($attr);";
-	
-	_clean($caller, $attr) if $needs_clean;
+	_clean($caller, { $attr => do { no strict 'refs'; ''.\&{"$caller\::$attr"} } })
+		if $needs_clean;
 }
 
 sub extends
