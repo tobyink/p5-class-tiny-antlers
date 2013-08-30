@@ -24,14 +24,57 @@ sub import
 	strict->import    if delete $want{strict};
 	warnings->import  if delete $want{warnings};
 	
-	no strict 'refs';
 	my $caller = caller;
-	*{"$caller\::has"}     = sub { unshift @_, $caller; goto \&has }     if delete $want{has};
-	*{"$caller\::extends"} = sub { unshift @_, $caller; goto \&extends } if delete $want{extends};
-	*{"$caller\::with"}    = sub { unshift @_, $caller; goto \&with }    if delete $want{with};
-	*{"$caller\::confess"} = \&confess if delete $want{confess};
+	_install_tracked($caller, has     => sub { unshift @_, $caller; goto \&has })     if delete $want{has};
+	_install_tracked($caller, extends => sub { unshift @_, $caller; goto \&extends }) if delete $want{extends};
+	_install_tracked($caller, with    => sub { unshift @_, $caller; goto \&with })    if delete $want{with};
+	_install_tracked($caller, confess => \&confess)                                   if delete $want{confess};
 	
 	croak("Unknown import symbols (%s)", join ", ", sort keys %want) if keys %want;
+}
+
+my %INSTALLED;
+sub _install_tracked
+{
+	no strict 'refs';
+	my ($pkg, $name, $code) = @_;
+	*{"$pkg\::$name"} = $code;
+	$INSTALLED{$pkg}{$name} = "$code";
+}
+
+sub unimport
+{
+	shift;
+	my $caller = caller;
+	my @remove =
+		grep exists($INSTALLED{$caller}{$_}),
+		map +($_ => 1),
+		map +(@{ $EXPORT_TAGS{substr($_, 1)} or [$_] }),
+		(@_ ? @_ : keys(%{$INSTALLED{$caller}}));
+	
+	for my $remove (@remove)
+	{
+		no strict 'refs';
+		_clean($caller, $remove)
+			if \&{"$caller\::$remove"} eq $INSTALLED{$caller}{$remove};
+	}
+}
+
+sub _clean
+{
+	my ($pkg, $sub) = @_;
+	
+	require Package::Stash;
+	my $ps = 'Package::Stash'->new($pkg);
+
+	my @restore = map {
+		my $name = $_ . $sub;
+		my $def = $ps->get_symbol($name);
+		defined($def) ? [$name, $def] : ();
+	} '$', '@', '%', '';
+
+	$ps->remove_glob($sub);
+	$ps->add_symbol(@$_) for @restore;
 }
 
 sub croak
@@ -151,20 +194,7 @@ sub has
 	
 	eval "package $caller; @methods use Class::Tiny qw($attr);";
 	
-	if ($needs_clean)
-	{
-		require Package::Stash;
-		my $ps = 'Package::Stash'->new($caller);
-
-		my @restore = map {
-			my $name = $_ . $attr;
-			my $def = $ps->get_symbol($name);
-			defined($def) ? [$name, $def] : ();
-		} '$', '@', '%', '';
-
-		$ps->remove_glob($attr);
-		$ps->add_symbol(@$_) for @restore;
-	}
+	_clean($caller, $attr) if $needs_clean;
 }
 
 sub extends
@@ -231,6 +261,20 @@ triggers or type constraints).
 
 Class::Tiny::Antlers does however hack in support for C<< is => 'ro' >>
 and Moo-style C<< is => 'rwp' >>, clearers and predicates.
+
+=head2 Export
+
+By default, Class::Tiny::Antlers exports C<has>, C<with> and C<extends>,
+and also imports L<strict> into its caller. You can optionally also import
+C<confess> and L<warnings>:
+
+   use Class::Tiny::Antlers qw( -default confess warnings );
+   use Class::Tiny::Antlers qw( -all );   # same thing
+
+You can put a C<< no Class::Tiny::Antlers >> statement at the end of your
+class definition to wipe the imported functions out of your namespace. (This
+does not unimport strict/warnings though.) To clean up your namespace more
+thoroughly, use something like L<namespace::sweep>.
 
 =head1 BUGS
 
