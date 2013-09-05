@@ -21,3 +21,10 @@
 		item "Take advantage of Class::Tiny's new(ish) `create_attributes` method."^^Change;
 	].
 
+`Class-Tiny-Antlers 0.022 cpan:TOBYINK`
+	issued  2013-09-05;
+	changeset [
+		item "Add 'test requires' dependency on Test::Requires - oh, the irony!"^^Packaging;
+		item "Demote Role::Tiny and Class::Method::Modifiers from 'runtime recommends' dependencies to 'runtime suggests', but 'test recommends'."^^Packaging;
+	].
+
