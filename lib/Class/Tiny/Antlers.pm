@@ -202,7 +202,9 @@ sub has
 		push @methods, "sub $predicate :method { exists(\$_[0]{'$attr'}) }";
 	}
 	
-	eval "package $caller; @methods use Class::Tiny qw($attr);";
+	eval "package $caller; @methods";
+	__PACKAGE__->create_attributes($caller, $attr);
+	
 	_clean($caller, { $attr => do { no strict 'refs'; ''.\&{"$caller\::$attr"} } })
 		if $needs_clean;
 }
