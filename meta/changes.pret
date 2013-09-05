@@ -10,3 +10,13 @@
 		item "Eliminate dependency on Package::Stash."^^Change;
 	].
 
+`Class-Tiny-Antlers 0.021 cpan:TOBYINK`
+	issued  2013-09-05;
+	changeset [
+		item "Make the dependency on Role::Tiny optional again."^^Change;
+		item "Requires Class::Tiny 0.006."^^Update;
+		item "Actually inherit from Class::Tiny. This means that your class doesn't need to `use` both Class::Tiny and Class::Tiny::Antlers; just `use Class::Tiny::Antlers`."^^Change;
+		item "Provide a `get_all_attribute_specs_for` method for attribute introspection."^^Addition;
+		item "Optionally export `before`, `after` and `around` keywords, powered by an optional dependency on Class::Method::Modifiers."^^Addition;
+	].
+
