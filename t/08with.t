@@ -6,6 +6,10 @@
 
 Test that C<with> works.
 
+=head1 DEPENDENCIES
+
+Requires L<Role::Tiny> 1.000000; skipped otherwise.
+
 =head1 AUTHOR
 
 Toby Inkster E<lt>tobyink@cpan.orgE<gt>.
@@ -23,6 +27,7 @@ the same terms as the Perl 5 programming language system itself.
 use strict;
 use warnings;
 use Test::More;
+use Test::Requires { 'Role::Tiny' => '1.000000' };
 
 {
 	package UUU;
@@ -43,7 +48,6 @@ use Test::More;
 
 {
 	package XXX;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	with qw( WWW );
 }
@@ -55,7 +59,6 @@ use Test::More;
 
 {
 	package ZZZ;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	extends qw( XXX );
 	with qw( VVV YYY );

@@ -26,7 +26,6 @@ use Test::More;
 
 {
 	package XXX;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	has aaa  => (predicate => 1, clearer => 1);
 	has _bbb => (predicate => 1, clearer => 1);

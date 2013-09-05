@@ -26,20 +26,19 @@ use Test::More;
 use Test::Fatal;
 
 like(
-	exception { package Bad1; use Class::Tiny; use Class::Tiny::Antlers; has xxx => (required => 1) },
+	exception { package Bad1; use Class::Tiny::Antlers; has xxx => (required => 1) },
 	qr{^Class::Tiny::Object::new does not support required attributes},
 	"required => 1",
 );
 
 is(
-	exception { package Good1; use Class::Tiny; use Class::Tiny::Antlers; has xxx => (required => 0) },
+	exception { package Good1; use Class::Tiny::Antlers; has xxx => (required => 0) },
 	undef,
 	"required => 0",
 );
 
 {
 	package XXX;
-	use Class::Tiny;
 	use Class::Tiny::Antlers -all;
 	
 	::is(

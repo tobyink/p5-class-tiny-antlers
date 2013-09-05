@@ -26,19 +26,19 @@ use Test::More;
 use Test::Fatal;
 
 like(
-	exception { package Bad1; use Class::Tiny; use Class::Tiny::Antlers; has xxx => (init_arg => undef) },
+	exception { package Bad1; use Class::Tiny::Antlers; has xxx => (init_arg => undef) },
 	qr{^Class::Tiny does not support init_arg},
 	"init_arg => undef",
 );
 
 like(
-	exception { package Bad2; use Class::Tiny; use Class::Tiny::Antlers; has xxx => (init_arg => 'yyy') },
+	exception { package Bad2; use Class::Tiny::Antlers; has xxx => (init_arg => 'yyy') },
 	qr{^Class::Tiny does not support init_arg},
 	"init_arg => 'yyy'",
 );
 
 is(
-	exception { package Good1; use Class::Tiny; use Class::Tiny::Antlers; has xxx => (init_arg => 'xxx') },
+	exception { package Good1; use Class::Tiny::Antlers; has xxx => (init_arg => 'xxx') },
 	undef,
 	"init_arg => 'xxx'",
 );

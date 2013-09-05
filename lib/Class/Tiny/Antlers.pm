@@ -13,7 +13,8 @@ our @ISA = 'Class::Tiny';
 
 my %EXPORT_TAGS = (
 	default => [qw/ has extends with strict /],
-	all     => [qw/ has extends with strict warnings confess /],
+	all     => [qw/ has extends with before after around strict warnings confess /],
+	cmm     => [qw/ before after around /],
 );
 
 my %CLASS_ATTRIBUTES;
@@ -26,14 +27,24 @@ sub import
 		map +(@{ $EXPORT_TAGS{substr($_, 1)} or [$_] }),
 		(@_ ? @_ : '-default');
 	
-	strict->import    if delete $want{strict};
-	warnings->import  if delete $want{warnings};
+	strict->import   if delete $want{strict};
+	warnings->import if delete $want{warnings};
 	
 	my $caller = caller;
 	_install_tracked($caller, has     => sub { unshift @_, $caller; goto \&has })     if delete $want{has};
 	_install_tracked($caller, extends => sub { unshift @_, $caller; goto \&extends }) if delete $want{extends};
 	_install_tracked($caller, with    => sub { unshift @_, $caller; goto \&with })    if delete $want{with};
 	_install_tracked($caller, confess => \&confess)                                   if delete $want{confess};
+	
+	for my $modifier (qw/ before after around /)
+	{
+		next unless delete $want{$modifier};
+		_install_tracked($caller, $modifier, sub
+		{
+			require Class::Method::Modifiers;
+			Class::Method::Modifiers::install_modifier($caller, $modifier, @_);
+		});
+	}
 	
 	croak("Unknown import symbols (%s)", join ", ", sort keys %want) if keys %want;
 	
@@ -286,9 +297,10 @@ Class::Tiny::Antlers - Moose-like sugar for Class::Tiny
 
 =head1 DESCRIPTION
 
-Class::Tiny::Antlers provides L<Moose>-like C<has>, C<extends> and C<with>
-keywords for L<Class::Tiny>. (The C<with> keyword is implemented by
-L<Role::Tiny>.)
+Class::Tiny::Antlers provides L<Moose>-like C<has>, C<extends>, C<with>,
+C<before>, C<after> and C<around> keywords for L<Class::Tiny>.
+(The C<with> keyword requires L<Role::Tiny>; method modifiers require
+L<Class::Method::Modifiers>.)
 
 Class::Tiny doesn't support all Moose's attribute options; C<has> should
 throw you an error if you try to do something it doesn't support (like
@@ -304,7 +316,15 @@ and also imports L<strict> into its caller. You can optionally also import
 C<confess> and L<warnings>:
 
    use Class::Tiny::Antlers qw( -default confess warnings );
-   use Class::Tiny::Antlers qw( -all );   # same thing
+
+And Class::Method::Modifiers keywords:
+
+   use Class::Tiny::Antlers qw( -default before after around );
+   use Class::Tiny::Antlers qw( -default -cmm );  # same thing
+
+If you just want everything:
+
+   use Class::Tiny::Antlers qw( -all );
 
 Class::Tiny::Antlers also ensures that Class::Tiny's import method is called
 for your class.
@@ -330,6 +350,18 @@ Set the base class(es) for your class.
 =item C<< with @roles >>
 
 Compose L<Role::Tiny> roles with your class.
+
+=item C<< before $name, \&code >>
+
+Install a C<before> modifier using L<Class::Method::Modifiers>.
+
+=item C<< after $name, \&code >>
+
+Install a C<after> modifier using L<Class::Method::Modifiers>.
+
+=item C<< around $name, \&code >>
+
+Install a C<around> modifier using L<Class::Method::Modifiers>.
 
 =item C<< confess $format, @list >>
 
@@ -359,7 +391,7 @@ L<http://rt.cpan.org/Dist/Display.html?Queue=Class-Tiny-Antlers>.
 
 =head1 SEE ALSO
 
-L<Class::Tiny>, L<Role::Tiny>.
+L<Class::Tiny>, L<Role::Tiny>, L<Class::Method::Modifiers>.
 
 L<Moose>, L<Mouse>, L<Moo>.
 

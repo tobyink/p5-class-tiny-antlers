@@ -26,7 +26,6 @@ use Test::More;
 
 {
 	package WWW;
-	use Class::Tiny;
 	use Class::Tiny::Antlers -all;
 	
 	has aaa => (is => 'ro',  lazy => 1, default => 11);

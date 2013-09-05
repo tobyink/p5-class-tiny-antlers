@@ -27,7 +27,6 @@ use Test::Fatal;
 
 {
 	package WWW;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	
 	use constant STYLE => 'non-coderef default with explicit lazy => 1';
@@ -39,7 +38,6 @@ use Test::Fatal;
 
 {
 	package XXX;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 
 	use constant STYLE => 'coderef default with explicit lazy => 1';
@@ -51,7 +49,6 @@ use Test::Fatal;
 
 {
 	package YYY;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	
 	use constant STYLE => 'non-coderef default with implicit lazy => 1';
@@ -63,7 +60,6 @@ use Test::Fatal;
 
 {
 	package ZZZ;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 
 	use constant STYLE => 'coderef default with implicit lazy => 1';

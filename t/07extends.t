@@ -26,26 +26,22 @@ use Test::More;
 
 {
 	package WWW;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 }
 
 {
 	package XXX;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	extends qw( WWW );
 }
 
 {
 	package YYY;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 }
 
 {
 	package ZZZ;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	extends qw( XXX YYY );
 }

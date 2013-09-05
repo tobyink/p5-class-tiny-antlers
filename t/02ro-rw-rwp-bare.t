@@ -32,7 +32,6 @@ use Test::More;
 
 {
 	package XXX;
-	use Class::Tiny;
 	use Class::Tiny::Antlers;
 	
 	extends 'YYY';
