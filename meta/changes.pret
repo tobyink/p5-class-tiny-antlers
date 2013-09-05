@@ -18,5 +18,6 @@
 		item "Actually inherit from Class::Tiny. This means that your class doesn't need to `use` both Class::Tiny and Class::Tiny::Antlers; just `use Class::Tiny::Antlers`."^^Change;
 		item "Provide a `get_all_attribute_specs_for` method for attribute introspection."^^Addition;
 		item "Optionally export `before`, `after` and `around` keywords, powered by an optional dependency on Class::Method::Modifiers."^^Addition;
+		item "Take advantage of Class::Tiny's new(ish) `create_attributes` method."^^Change;
 	].
 
