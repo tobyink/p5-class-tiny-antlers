@@ -8,16 +8,19 @@ use warnings;
 our $AUTHORITY = 'cpan:TOBYINK';
 our $VERSION   = '0.020';
 
-use Class::Tiny 0.005 ();
+use Class::Tiny 0.006 ();
+our @ISA = 'Class::Tiny';
 
 my %EXPORT_TAGS = (
 	default => [qw/ has extends with strict /],
 	all     => [qw/ has extends with strict warnings confess /],
 );
 
+my %CLASS_ATTRIBUTES;
+
 sub import
 {
-	shift;
+	my $class = shift;
 	my %want =
 		map +($_ => 1),
 		map +(@{ $EXPORT_TAGS{substr($_, 1)} or [$_] }),
@@ -33,6 +36,9 @@ sub import
 	_install_tracked($caller, confess => \&confess)                                   if delete $want{confess};
 	
 	croak("Unknown import symbols (%s)", join ", ", sort keys %want) if keys %want;
+	
+	@_ = ($class);
+	goto \&Class::Tiny::import;
 }
 
 my %INSTALLED;
@@ -95,7 +101,11 @@ sub has
 {
 	my $caller = shift;
 	my ($attr, %spec) = @_;
-
+	
+	$CLASS_ATTRIBUTES{$caller}{$attr} = +{ %spec };
+	$CLASS_ATTRIBUTES{$caller}{$attr}{is}   ||= 'ro';
+	$CLASS_ATTRIBUTES{$caller}{$attr}{lazy} ||= 1 if exists($spec{default});
+	
 	if (defined($attr) and ref($attr) eq q(ARRAY))
 	{
 		has($caller, $_, %spec) for @$attr;
@@ -218,6 +228,29 @@ sub with
 	goto \&Role::Tiny::With::with;
 }
 
+sub get_all_attribute_specs_for
+{
+	my $me = shift;
+	my $class = $_[0];
+	
+	my %specs = %{ $me->get_all_attribute_defaults_for };
+	$specs{$_} =
+		defined($specs{$_})
+			? +{ is => 'rw', lazy => 1, default => $specs{$_} }
+			: +{ is => 'rw' }
+		for keys %specs;
+	
+	for my $p ( reverse @{ $class->mro::get_linear_isa } )
+	{
+		while ( my ($k, $v) = each %{$CLASS_ATTRIBUTES{$p}||{}} )
+		{
+			$specs{$k} = $v;
+		}
+	}
+	
+	\%specs;
+}
+
 1;
 
 
@@ -237,7 +270,6 @@ Class::Tiny::Antlers - Moose-like sugar for Class::Tiny
 
    {
       package Point;
-      use Class::Tiny;
       use Class::Tiny::Antlers;
       has x => (is => 'ro');
       has y => (is => 'ro');
@@ -245,7 +277,6 @@ Class::Tiny::Antlers - Moose-like sugar for Class::Tiny
    
    {
       package Point3D;
-      use Class::Tiny;
       use Class::Tiny::Antlers;
       extends 'Point';
       has z => (is => 'ro');
@@ -273,10 +304,51 @@ C<confess> and L<warnings>:
    use Class::Tiny::Antlers qw( -default confess warnings );
    use Class::Tiny::Antlers qw( -all );   # same thing
 
+Class::Tiny::Antlers also ensures that Class::Tiny's import method is called
+for your class.
+
 You can put a C<< no Class::Tiny::Antlers >> statement at the end of your
 class definition to wipe the imported functions out of your namespace. (This
 does not unimport strict/warnings though.) To clean up your namespace more
 thoroughly, use something like L<namespace::sweep>.
+
+=head2 Functions
+
+=over
+
+=item C<< has $attr, %spec >>
+
+Create an attribute. The specification hash roughly supports C<is>,
+C<default>, C<clearer> and C<predicate> as per L<Moose> and L<Moo>.
+
+=item C<< extends @classes >>
+
+Set the base class(es) for your class.
+
+=item C<< with @roles >>
+
+Compose L<Role::Tiny> roles with your class.
+
+=item C<< confess $format, @list >>
+
+C<sprintf>-fueled version of L<Carp>'s C<confess>.
+
+=back
+
+=head2 Methods
+
+Class::Tiny::Antlers inherits the C<get_all_attributes_for> and
+C<get_all_attribute_defaults_for> methods from Class::Tiny, and also
+provides:
+
+=over
+
+=item C<< Class::Tiny::Antlers->get_all_attribute_specs_for($class) >>
+
+Gets Moose-style attribute specification hashes for all the class'
+attributes as a big hashref. (Includes inherited attributes.)
+
+=back
 
 =head1 BUGS
 
