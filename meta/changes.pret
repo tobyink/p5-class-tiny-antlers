@@ -28,3 +28,11 @@
 		item "Demote Role::Tiny and Class::Method::Modifiers from 'runtime recommends' dependencies to 'runtime suggests', but 'test recommends'."^^Packaging;
 	].
 
+`Class-Tiny-Antlers 0.023 cpan:TOBYINK`
+	issued  2014-09-18;
+	changeset [
+		item "Add explicit dependency on Perl 5.6."^^Packaging;
+		item "Add IRC link."^^Packaging;
+		item "Rebuilt package with newer Dist::Inkt to resolve minor packaging issues."^^Packaging;
+	].
+
