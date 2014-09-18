@@ -3,6 +3,7 @@
 @prefix : <http://ontologi.es/doap-deps#>.
 
 `Class-Tiny-Antlers`
+	:runtime-requirement    [ :on "perl 5.006"^^:CpanId ];
 	:runtime-requirement    [ :on "Class::Tiny 0.006"^^:CpanId ];
 	:runtime-suggestion     [ :on "Role::Tiny 1.000000"^^:CpanId ];
 	:runtime-suggestion     [ :on "Class::Method::Modifiers 1.05"^^:CpanId ];
@@ -11,6 +12,5 @@
 	:test-requirement       [ :on "Test::Requires 0.06"^^:CpanId ];
 	:test-recommendation    [ :on "Role::Tiny 1.000000"^^:CpanId ];
 	:test-recommendation    [ :on "Class::Method::Modifiers 1.05"^^:CpanId ];
-	:develop-recommendation [ :on "Dist::Inkt 0.001"^^:CpanId ];
 	.
 

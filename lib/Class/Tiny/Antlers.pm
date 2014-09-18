@@ -2,6 +2,7 @@ package Class::Tiny::Antlers;
 
 sub _getstash { \%{"$_[0]::"} }
 
+use 5.006;
 use strict;
 use warnings;
 
