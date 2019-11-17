@@ -12,5 +12,6 @@
 	:test-requirement       [ :on "Test::Requires 0.06"^^:CpanId ];
 	:test-recommendation    [ :on "Role::Tiny 1.000000"^^:CpanId ];
 	:test-recommendation    [ :on "Class::Method::Modifiers 1.05"^^:CpanId ];
+	:test-recommendation    [ :on "Types::Standard"^^:CpanId ];
 	.
 
