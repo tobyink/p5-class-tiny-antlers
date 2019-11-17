@@ -145,7 +145,7 @@ sub has
 		ref($spec{isa}) or croak("Type names are strings are not supported");
 		$spec{isa}->can('check')       or croak("Type doesn't have a `check` method");
 		$spec{isa}->can('get_message') or croak("Type doesn't have a `get_message` method");
-		$spec{isa}->can('coerce')      or $spec{coerce} or croak("Type doesn't have a `coerce` method");
+		$spec{isa}->can('coerce')      or !$spec{coerce} or croak("Type doesn't have a `coerce` method");
 		$setter_wrap = 1;
 		delete $spec{$_} for qw/ isa coerce /;
 		__PACKAGE__->_wrap_build($caller) unless $BUILD_WRAPPED{$caller}++;
