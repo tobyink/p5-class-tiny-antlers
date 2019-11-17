@@ -26,9 +26,9 @@ matrix:
       dist: trusty
     - perl: "5.6.2"
       dist: trusty
-    - perl: "bleed"
+    - perl: "blead"
   allow_failures:
-    - perl: "bleed"
+    - perl: "blead"
     - perl: "5.8.9"
     - perl: "5.6.2"
 before_install:
