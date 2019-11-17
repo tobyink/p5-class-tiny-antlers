@@ -36,3 +36,9 @@
 		item "Rebuilt package with newer Dist::Inkt to resolve minor packaging issues."^^Packaging;
 	].
 
+`Class-Tiny-Antlers 0.024 cpan:TOBYINK`
+	issued  2019-11-17;
+	changeset [
+		item "Support for isa/coerce."^^Addition;
+	].
+
