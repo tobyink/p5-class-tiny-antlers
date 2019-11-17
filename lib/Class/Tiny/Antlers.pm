@@ -424,7 +424,8 @@ and Moo-style C<< is => 'rwp' >>, clearers and predicates.
 
 From version 0.24, Class::Tiny::Antlers also adds support for `isa` and
 `coerce` using L<Type::Tiny>. (I mean, this is a TOBYINK module, so what
-do you expect?!)
+do you expect?!) Technically L<MooseX::Types>, L<MouseX::Types>,
+L<Specio>, and L<Type::Nano> should work, but these are less tested.
 
 =head2 Export
 

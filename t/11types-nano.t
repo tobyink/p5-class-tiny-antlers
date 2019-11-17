@@ -17,9 +17,9 @@ $o1->foo(43);
 is($o1->foo, 43);
 
 my $e = exception { $o1->foo('bar') };
-like($e, qr/type constraint/);
+like($e, qr/type constraint/i);
 
 my $e2 = exception { Local::Foo->new(foo => 'baz') };
-like($e2, qr/type constraint/);
+like($e2, qr/type constraint/i);
 
 done_testing;
