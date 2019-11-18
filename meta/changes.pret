@@ -37,7 +37,7 @@
 	].
 
 `Class-Tiny-Antlers 0.024 cpan:TOBYINK`
-	issued  2019-11-17;
+	issued  2019-11-18;
 	changeset [
 		item "Support for isa/coerce."^^Addition;
 	].
