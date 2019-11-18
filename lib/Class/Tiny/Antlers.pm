@@ -258,7 +258,7 @@ sub _wrap_build {
 				my $self = shift;
 				%s->_check_args('%s', $self, @_);
 			}
-		}, $caller, $me, $caller);		
+		}, $caller, $me, $caller);
 	}
 }
 
